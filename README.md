@@ -4,3 +4,5 @@ matlab code for doing radiomic including handling of dicom, dicom-rt, boxing aro
 Code is mainly written by Paul Desbordes
 
 The code is still a big mess, path are not portable between windows and linux, but its matlab so why bother making good code anyway.. 
+
+If you have any question about how to use it you can ask me 

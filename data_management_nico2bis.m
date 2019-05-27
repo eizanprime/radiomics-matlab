@@ -1,8 +1,9 @@
 %clear; clc;
-warning('off','all');
+%warning('off','all');
 
 % Parameters
 path_scan = '/home/eizanprime/Documents/NEW_TFE/DATA/OneDrive_1_5-19-2019/DOI3/'; % To change
+HU_range = [-1024, 1024]; % Hounsfield unit limit for normalization
 spacing = [1, 1, 1];
 bit_req = 32;
 offset = [1 0 0; 0 1 0; 1 1 0; 1 -1 0; 0 0 1; 0 1 1; 0 -1 1; -1 0 1; ...
@@ -21,50 +22,35 @@ x_feat = [];
 x_feat_utile = [];
 patients_list = dir(path_scan); 
 patients_list = patients_list(3:end);
+
 x_feat_patientNaymes = [];
 x_feat_utile_patientNaymes = [];
+
 for iPat = 1:size(patients_list, 1) % Patients iteration
     tic;
     %% Path Management
     patient_name = patients_list(iPat).name;
     load([path_scan, '/', patient_name]); % ct and roi
     disp(patient_name);
-    
-    % Minimal box around tumor (add margins ?)
-    %tmp_ind = find(roi(:));        
-    %[x, y, z] = ind2sub(size(roi), tmp_ind);
-    %param = [min(x), max(x); min(y), max(y); min(z), max(z)];
 
-    %param(:,1) = param(:,1);
-    %param(:,2) = param(:,2);
+    % CT normalization between -1024 et 1024 HU
+    ct_norm = (ct - HU_range(1))/(HU_range(2)-HU_range(1));
+    ct_norm(ct_norm>1) = 1;
+    ct_norm(ct_norm<0) = 0;
+                
+    % FIRST ORDER FEATURES
+    fOrder_feats = fOrderFeatCT(ct, roi, spacing);
 
-    %roi_red = roi(param(1,1):param(1,2),...
-    %    param(2,1):param(2,2),param(3,1):param(3,2));
-    %ct_red = ct(param(1,1):param(1,2),...
-    %    param(2,1):param(2,2),param(3,1):param(3,2));
-    %ct_red = ct_red.*roi_red;
-    
-    ct_red = ct.*roi;
-    roi_red = roi;
-    
-    %prout = min(min(min(ct_red)))
-    
-    %FIRST ORDER FEATURES
-    fOrder_feats = fOrderFeatCT(ct_red, roi_red, spacing);
-    
-    
-    % ADDED BY NICOLAS (like not lot lol)
-    
-    exam3DPos = ((ct_red + 1024)/2048)*255;
-    exam3DMasked = exam3DPos .* roi_red;
-    exam3DMaskedReduit = boiteMin3D(exam3DMasked, roi_red);
+    exam3DPos = ct_norm*255;
+    %exam3DMasked = exam3DPos .* roi_red;
+    %exam3DMaskedReduit = boiteMin3D(exam3DMasked, roi_red);
     exam3Duint8 = uint8(exam3DPos);
-    exam3DMaskeduint8 = uint8(exam3DMasked);
-    [exam3Dreduit, maskreduit] = boiteMin3D(exam3DPos, roi_red);
-    exam3Duint8reduit = boiteMin3D(exam3Duint8, roi_red);
-    maskreduituint = uint8(maskreduit);
+    %exam3DMaskeduint8 = uint8(exam3DMasked);
+    %[exam3Dreduit, maskreduit] = boiteMin3D(exam3DPos, roi_red);
+    %exam3Duint8reduit = ct_norm
+    maskreduituint = uint8(roi);
     
-    [vectogran, vectoantigran,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = granularity(exam3Duint8reduit, 9, maskreduituint);
+    [vectogran, vectoantigran,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = granularity(exam3Duint8, 9, maskreduituint);
     mygrantableau = [vectogran; vectoantigran; maxou; standev; cov; skew; kurt; energy; entropy; maxounorm; standevnorm; covnorm; skewnorm; kurtnorm; energynorm; entropynorm];
     [width, height ]= size(mygrantableau);
     
@@ -73,15 +59,16 @@ for iPat = 1:size(patients_list, 1) % Patients iteration
     % Check if the tumor volume is > 10cm3, or textures are non-sense
     if fOrder_feats(2) > 10       
         % Resample ct intensities into a limit number of value
-        ct_resamp = zeros(size(ct_red));
+        ct_resamp = zeros(size(ct));
+        
         intNew = 1/bit_req:1/bit_req:1;
         for iInt = 1:size(intNew,2)
-            ct_resamp(ct_red >= intNew(iInt)) = iInt;
+            ct_resamp(ct_norm >= intNew(iInt)) = iInt;
         end
-
+        
         % COOCCURRENCE MATRIX FEATURES
         GLCMatrices = GLCM_compute(ct_resamp, distance, offset);   
-        GLCMatrices = GLCMatrices(:,:,14);  % Keep only the mean matrix (correlations) %14ieme c'set la mean
+        GLCMatrices = GLCMatrices(:,:,14);  % Keep only the mean matrix (correlations)
         GLCMfeat = GLCM_features(GLCMatrices,2);
         GLCMfeat2 = GLCMfeat'; GLCMfeat2 = GLCMfeat2(:)';
 
@@ -107,7 +94,7 @@ for iPat = 1:size(patients_list, 1) % Patients iteration
         x_feat_utile_patientNaymes = [x_feat_utile_patientNaymes; patient_name]
     else
         % sinon les textures sont NaN
-        x_feat = [x_feat; fOrder_feats, zeros([1,37 + width * height])/0];  %37 longueur totale des vecteurs + 20
+         x_feat = [x_feat; fOrder_feats, zeros([1,37 + width * height])/0];  %37 longueur totale des vecteurs + 20
         x_feat_patientNaymes = [x_feat_patientNaymes; patient_name]
     end
     toc;

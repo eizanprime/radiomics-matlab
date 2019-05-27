@@ -2,7 +2,7 @@
 %warning('off','all');
 
 % Parameters
-path_scan = '/home/eizanprime/Documents/NEW_TFE/DATA/OneDrive_1_5-19-2019/DOI3/'; % To change
+path_scan = '/home/eizanprime/Documents/NEW_TFE/DATA/OneDrive_1_5-19-2019/DOI3/'; % To change  //folder with the .mats
 HU_range = [-1024, 1024]; % Hounsfield unit limit for normalization
 spacing = [1, 1, 1];
 bit_req = 32;
@@ -11,37 +11,37 @@ offset = [1 0 0; 0 1 0; 1 1 0; 1 -1 0; 0 0 1; 0 1 1; 0 -1 1; -1 0 1; ...
 distance = 1;
 
 % Labels
-fOrder_labels = fOrder_label();
+fOrder_labels = fOrder_label();  
 glcm_labels = GLCM_label(1);
 gldm_labels = GLDM_label();
 glrlm_labels = GLRLM_label(1);
 glszm_labels = GLSZM_label();
 xLabels = cat(2, fOrder_labels, glcm_labels, gldm_labels, glrlm_labels, glszm_labels);
 
-x_feat = [];
-x_feat_utile = [];
+x_feat = []; %x_feat contains all the features
+x_feat_utile = []; %x feat utile only contains the ones that have the tumour volutem above 10cm3
 patients_list = dir(path_scan); 
 patients_list = patients_list(3:end);
 
-x_feat_patientNaymes = [];
+x_feat_patientNaymes = []; %the patient names corresponding to each line
 x_feat_utile_patientNaymes = [];
 
 for iPat = 1:size(patients_list, 1) % Patients iteration
     tic;
     %% Path Management
     patient_name = patients_list(iPat).name;
-    load([path_scan, '/', patient_name]); % ct and roi
+    load([path_scan, '/', patient_name]); % ct and roi   //to change te '\' if you are on windows
     disp(patient_name);
 
     % CT normalization between -1024 et 1024 HU
-    ct_norm = (ct - HU_range(1))/(HU_range(2)-HU_range(1));
+    ct_norm = (ct - HU_range(1))/(HU_range(2)-HU_range(1)); 
     ct_norm(ct_norm>1) = 1;
     ct_norm(ct_norm<0) = 0;
                 
     % FIRST ORDER FEATURES
-    fOrder_feats = fOrderFeatCT(ct, roi, spacing);
+    fOrder_feats = fOrderFeatCT(ct, roi, spacing); % Compute first order features
 
-    exam3DPos = ct_norm*255;
+    exam3DPos = ct_norm*255;   %before doing mathematical morphology we normalize to 0 to 255 in order for it to work better with the mathematical morphology implementation of matlab
     %exam3DMasked = exam3DPos .* roi_red;
     %exam3DMaskedReduit = boiteMin3D(exam3DMasked, roi_red);
     exam3Duint8 = uint8(exam3DPos);
@@ -50,12 +50,15 @@ for iPat = 1:size(patients_list, 1) % Patients iteration
     %exam3Duint8reduit = ct_norm
     maskreduituint = uint8(roi);
     
-    [vectogran, vectoantigran,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = granularity(exam3Duint8, 9, maskreduituint);
+    [vectogran, vectoantigran,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = granularity(exam3Duint8, 9, maskreduituint); %granularity function made by nicolas
+    %computes the granularity as presented in the paper, as well as
+    %antigranularity and granular moments, both in absolute scale and
+    %normalized ! 
     mygrantableau = [vectogran; vectoantigran; maxou; standev; cov; skew; kurt; energy; entropy; maxounorm; standevnorm; covnorm; skewnorm; kurtnorm; energynorm; entropynorm];
     [width, height ]= size(mygrantableau);
     
     
-    % TEXTURE INDICES 
+    % TEXTURE INDICES   %Higher order texture analysis by Dr Paul ! 
     % Check if the tumor volume is > 10cm3, or textures are non-sense
     if fOrder_feats(2) > 10       
         % Resample ct intensities into a limit number of value

@@ -54,7 +54,7 @@ for iIter = 1:numiter
     volantmp1 = sum(sum(sum(antmp1)));
     vectoantigran = [vectoantigran, volantmp1/ baseVol];
     
-    firstOrder = fOrderFeatCT(single(tmp1), single(maskreduit), [2, 2, 2]);
+    firstOrder = fOrderFeatCT(single(tmp1), single(maskreduit), [1, 1, 1]);
     
     %minou = [minou, firstOrder(4)];  
     maxou = [maxou, firstOrder(5)];

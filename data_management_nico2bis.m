@@ -7,7 +7,7 @@ HU_range = [-1024, 1024]; % Hounsfield unit limit for normalization
 spacing = [1, 1, 1];
 bit_req = 32;
 offset = [1 0 0; 0 1 0; 1 1 0; 1 -1 0; 0 0 1; 0 1 1; 0 -1 1; -1 0 1; ...
-    1 0 1; 1 1 1; 1 -1 1; 1 -1 -1; 1 1 -1]; % direction for texture matrices
+    1 0 1; 1 1 1; 1 -1 1; 1 -1 -1; 1 1 -1]; % direction for texture matrices %shit is also usefull for the mathematical covariance meme, thanks dr Paul
 distance = 1;
 
 % Labels
@@ -26,7 +26,7 @@ patients_list = patients_list(3:end);
 x_feat_patientNaymes = []; %the patient names corresponding to each line
 x_feat_utile_patientNaymes = [];
 
-for iPat = 1:size(patients_list, 1) % Patients iteration
+for iPat = 1%:size(patients_list, 1) % Patients iteration
     tic;
     %% Path Management
     patient_name = patients_list(iPat).name;
@@ -51,6 +51,8 @@ for iPat = 1:size(patients_list, 1) % Patients iteration
     maskreduituint = uint8(roi);
     
     [vectogran, vectoantigran,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = granularity(exam3Duint8, 9, maskreduituint); %granularity function made by nicolas
+    
+    [covolume,covmaxou,covstandev,covcov,covskew,covkurt,covenergy, coventropy,covmaxounorm,covstandevnorm,covcovnorm,covskewnorm,covkurtnorm,covenergynorm, coventropynorm] = morphcovariance(exam3Duint8, 9, maskreduituint, offset);
     %computes the granularity as presented in the paper, as well as
     %antigranularity and granular moments, both in absolute scale and
     %normalized ! 

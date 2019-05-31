@@ -61,7 +61,7 @@ for iPat = 1:size(patients_list, 1) % Patients iteration
     % TEXTURE INDICES   %Higher order texture analysis by Dr Paul ! 
     % Check if the tumor volume is > 10cm3, or textures are non-sense
     if fOrder_feats(2) > 10       
-        % Resample ct intensities into a limit number of value
+        % Resample ct intensities into a limit number of value 
         ct_resamp = zeros(size(ct));
         
         intNew = 1/bit_req:1/bit_req:1;

@@ -9,10 +9,39 @@ pathScan = '/home/eizanprime/Documents/NEW_TFE/DATA/OneDrive_1_5-19-2019/data_NS
 label = data_txt(1,2:end);
 type = data_txt(2,2:end);
 patient = data_txt(3:end,1);
-data_txt = data_txt(3:end,2:end);
+data_txt = data_txt(3:end, 2:end);
+%fuckmatlab = strfind(type, "double")
+%find([fuckmatlab{:}] == 1)
+
+%testxt = testxt(:, strfind(type, "double"))
+%data_txt = data_txt(3:end,:); %modified by me
+% Added by Nicolas the mémorant null
+%NaNaNaHaHa = find(all(isnan(data_num),1))
+%NOTNaNaNaHaHa = find(all(~isnan(data_num),1))
+%index = false(1, numel(C))
+doubleindex = [];
+stringindex = [];
+%this loop is needed because matlab is cancer, my radiomics feature tell me
+%that matlab is cancer with 100% accuracy and p-value of 0,00000000001
+for k = 1:size(type')
+    if(strcmp(type(k),"double"))
+        doubleindex = [doubleindex, k  ];%-1 because the first double is at 2...  ugly I know
+    end
+    if(strcmp(type(k),"string"))
+        stringindex = [stringindex, k];
+    end
+end
+doubleindex;
+stringindex;
+
+
+data_num =  data_num(:, doubleindex);
+data_txt = data_txt(:, stringindex);
+%data_txt = data_txt(:, 2:end); %we dont need patient name (even you, my beloved LUNG1-001)
+
 
 % r�duction aux patients utiles
-load('patientNaymes_utile.mat')
+load('x_feat_utile_naymesbis.mat');
 new_patient = x_feat_utile_patientNaymes(:, 1:end-4);
 new_patient = string(new_patient);
 
@@ -29,15 +58,18 @@ data_num(ind, :) = [];
 data_txt(ind, :) = [];
 
 % loading features
- load('x_feat_utile_lotsoffeatures.mat');
+ load('x_feat_utile_bis.mat');
  my_feats = x_feat_utile;
 data_num = [data_num, my_feats];
+data_num = [data_num, GranulPCAFeat];
+data_num = [data_num, GranulFirstOrderPCAFeat];
+data_num = [data_num, GranulFirstOrderNormPCAFeat];
 type = [type, repmat("double", 1, size(my_feats, 1))];
 
 % Analyse statistiques
 % outcome studied
-yData = (data_txt(:, 12) == "Y");
-times = data_num(:, 9);
+yData = (data_txt(:, 9) == "Y");
+times = data_num(:, 3);
 [times, indTimes] = sort(times);
 cens = zeros(size(times)); % to modif ?
 
@@ -47,9 +79,9 @@ legend = {'label', 'Se', 'Sp', 'AUC', 'Youden', 'Threshold', 'chi2', ...
 % For contineous data: altman correction, ROC curves, Kaplan-meier analysis
 % For discrete data: directly Kaplan-meier analysis
 stats2 = [];
-for iLab = 50:size(data_num, 2)
+for iLab = 4:size(data_num, 2)
 %     xLab = label{iLab};
-    if strcmp(type{iLab}, 'double')
+    if 1%strcmp(type{iLab}, 'double') %now its always double guys hahaha
         xData = data_num(:, iLab);
         
         % remove NaN
@@ -81,7 +113,7 @@ for iLab = 50:size(data_num, 2)
         % Features binarisation
         xDataBW = xData(indTimes) > bestThresh;
 
-    elseif strcmp(type{iLab}, 'string')
+    elseif 0 %strcmp(type{iLab}, 'string') %muhhahah
         Se = NaN;
         Sp = NaN;
         AUC = NaN;
@@ -97,7 +129,7 @@ for iLab = 50:size(data_num, 2)
     [chi2, pVal] = KManalyse(xDataBW, times, cens);
     signif1 = pVal <= alpha;
     
-    if strcmp(type{iLab}, 'double')
+    if 1 %strcmp(type{iLab}, 'double')
         % Altmann correction
         pValAlt = NaN;
         if pVal<0.1
@@ -105,7 +137,7 @@ for iLab = 50:size(data_num, 2)
         end
         signif2 = pValAlt <= alpha;
         
-    elseif strcmp(type{iLab}, 'string')
+    elseif 0% strcmp(type{iLab}, 'string')
         pValAlt = NaN;
         signif2 = NaN;
     end

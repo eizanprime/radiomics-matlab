@@ -1,8 +1,5 @@
-clear; clc;
-warning('off','all');
-
 % Parameters
-pathScan = 'E:\Data\data_NSCLC\data_NSCLC.xlsx';
+pathScan = '/home/eizanprime/Documents/NEW_TFE/DATA/OneDrive_1_5-19-2019/data_NSCLC.xlsx';
 [data_num, data_txt] = xlsread(pathScan);
 
 label = data_txt(1,2:end);

@@ -47,7 +47,7 @@ for iOff = 1:numDir
     for iIter = 1:numiter
         
         mySE = zeros(1+2*iIter, 1+2*iIter, 1+2*iIter);
-        mySE(iIter+1, iIter+1, iIter+1) = 1;
+        mySE(iIter+1, iIter+1, iIter+1) = 1; %center
         mySE(iIter+1 + currdirection(1)*iIter, iIter+1 + currdirection(2)*iIter, iIter+1 + currdirection(3)*iIter) = 1;
         
         se = strel(mySE);

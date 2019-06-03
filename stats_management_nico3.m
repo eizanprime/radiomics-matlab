@@ -145,5 +145,5 @@ for iLab = 4:size(data_num, 2)
     stats = {Se, Sp, AUC, youdenInd, bestThresh, chi2, pVal, signif1, pValAlt, signif2};
     stats2 = [stats2; stats];
 end
-stats2 = cell2mat(stats2);
-find(stats2(:, 10))
+%stats2 = cell2mat(stats2);
+%find(stats2(:, 10))

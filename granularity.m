@@ -70,7 +70,7 @@ for iIter = 1:numiter
     entropy = [entropy, firstOrder(12)];
     
     
-    NOUT = cent_moment(single(vol3d), single(maskreduit), [3, 0,0; 0,3,0; 0,0,3]);
+    NOUT = cent_moment(single(tmp1), single(maskreduit), [3, 0,0; 0,3,0; 0,0,3]);
 
      N300(1 + iIter) = NOUT(1, :);
      N030(1 + iIter) = NOUT(2, :);

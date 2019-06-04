@@ -58,15 +58,19 @@ data_num(ind, :) = [];
 data_txt(ind, :) = [];
 
 % loading features
- load('x_feat_utile_bis.mat');
+ %load('x_feat_utile_bis.mat');
  %load('GranulFirstOrderPCAFeat.mat');
  %load('GranulPCAFeat.mat');
  %load('GranulFirstOrderPCANormFeat.mat')
- my_feats = x_feat_utile;
+ my_feats = x_feat_utile(:,1:50);
 data_num = [data_num, my_feats];
-data_num = [data_num, GranulPCAFeat];
-data_num = [data_num, GranulFirstOrderPCAFeat];%
-data_num = [data_num, GranulFirstOrderNormPCAFeat];
+data_num = [data_num, granulPCAFEAT];
+data_num = [data_num, granulALLPCAFEAT(:,1:50)];%
+data_num = [data_num, covPCAALL(:,1:50)];
+data_num = [data_num, covPCAFEAT(:,1:50)];
+data_num = [data_num, vectogranPCA, vectoantigranPCA,N300PCA,N030PCA,N003PCA, maxounormPCA, standevnormPCA, covnormPCA, skewnormPCA, kurtnormPCA, energynormPCA, entropynormPCA, covolumePCA, covN300PCA, covN030PCA, covN003PCA,covmaxounormPCA, covstandevnormPCA,covcovnormPCA, covskewnormPCA,covkurtnormPCA,covenergynormPCA, coventropynormPCA];
+
+%data_num = [data_num, GranulFirstOrderNormPCAFeat];
 type = [type, repmat("double", 1, size(my_feats, 1))];
 
 % Analyse statistiques

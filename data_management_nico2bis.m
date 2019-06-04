@@ -1,5 +1,5 @@
-%clear; clc;
-%warning('off','all');
+clear; clc;
+warning('off','all');
 
 % Parameters
 path_scan = '/home/eizanprime/Documents/NEW_TFE/DATA/OneDrive_1_5-19-2019/DOI3/'; % To change  //folder with the .mats
@@ -54,12 +54,13 @@ for iPat = 1:size(patients_list, 1) % Patients iteration
     
     [vectogran, vectoantigran, N300, N030, N003, maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = granularity(exam3Duint8, 9, maskreduituint); %granularity function made by nicolas
     
-    [covolume,covN300, covN030, covN003,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = morphcovariance(exam3Duint8, 9, maskreduituint, offset);
+    [covolume,covN300, covN030, covN003,covmaxounorm,covstandevnorm,covcovnorm,covskewnorm,covkurtnorm,covenergynorm, coventropynorm] = morphcovariance(exam3Duint8, 9, maskreduituint, offset);
     %computes the granularity as presented in the paper, as well as
     %antigranularity and granular moments, both in absolute scale and
     %normalized ! 
-    mygrantableau = [vectogran;vectoantigran;N300; N030;N003;maxounorm;standevnorm;covnorm;skewnorm;kurtnorm;energynorm;entropynorm;covolume;covN300;covN030;covN003;maxounorm;standevnorm;covnorm;skewnorm;kurtnorm;energynorm; entropynorm];
-    mygranconcattableau = mygrantableau(:);
+    mygrantableau = [vectogran;vectoantigran;N300; N030;N003;maxounorm;standevnorm;covnorm;skewnorm;kurtnorm;energynorm;entropynorm;covolume;covN300;covN030;covN003;covmaxounorm;covstandevnorm;covcovnorm;covskewnorm;covkurtnorm;covenergynorm; coventropynorm];
+    transposed = transpose(mygrantableau);
+    mygranconcattableau = transposed(:);
     [width, height ]= size(mygrantableau);
     
     

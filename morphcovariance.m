@@ -1,4 +1,4 @@
-function [covolume,covN300, covN030, covN003,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = morphcovariance(vol3d, numiter, maskreduit, offset)
+function [covolume,covN300, covN030, covN003,covmaxounorm,covstandevnorm,covcovnorm,covskewnorm,covkurtnorm,covenergynorm, coventropynorm] = morphcovariance(vol3d, numiter, maskreduit, offset)
 %maxou,standev,cov,skew,kurt,energy, entropy, 
 %supprimé les nons norm
 maskreversed255 = uint8(uint8(~maskreduit).*uint8(255));
@@ -123,13 +123,13 @@ covN003(1,:) = [];
 
 
     %minounorm = minou./ minou(1); 
-    maxounorm = maxou./ maxou(1); 
-    standevnorm = standev./standev(1);  
-    covnorm = cov./cov(1); 
-    skewnorm = skew./skew(1); 
-    kurtnorm = kurt./kurt(1);  
-    energynorm = energy./energy(1); 
-    entropynorm = entropy./entropy(1); 
+    covmaxounorm = maxou./ maxou(1); 
+    covstandevnorm = standev./standev(1);  
+    covcovnorm = cov./cov(1); 
+    covskewnorm = skew./skew(1); 
+    covkurtnorm = kurt./kurt(1);  
+    covenergynorm = energy./energy(1); 
+    coventropynorm = entropy./entropy(1); 
     
 
 end

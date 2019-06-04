@@ -26,7 +26,9 @@ patients_list = patients_list(3:end);
 x_feat_patientNaymes = []; %the patient names corresponding to each line
 x_feat_utile_patientNaymes = [];
 
-for iPat = 1%:size(patients_list, 1) % Patients iteration
+morpholabels = {}; %yes I finally make those labels lol
+
+for iPat = 1:size(patients_list, 1) % Patients iteration
     tic;
     %% Path Management
     patient_name = patients_list(iPat).name;
@@ -50,13 +52,14 @@ for iPat = 1%:size(patients_list, 1) % Patients iteration
     %exam3Duint8reduit = ct_norm
     maskreduituint = uint8(roi);
     
-    [vectogran, vectoantigran,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = granularity(exam3Duint8, 9, maskreduituint); %granularity function made by nicolas
+    [vectogran, vectoantigran, N300, N030, N003, maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = granularity(exam3Duint8, 9, maskreduituint); %granularity function made by nicolas
     
-    [covolume,covmaxou,covstandev,covcov,covskew,covkurt,covenergy, coventropy,covmaxounorm,covstandevnorm,covcovnorm,covskewnorm,covkurtnorm,covenergynorm, coventropynorm] = morphcovariance(exam3Duint8, 9, maskreduituint, offset);
+    [covolume,covN300, covN030, covN003,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = morphcovariance(exam3Duint8, 9, maskreduituint, offset);
     %computes the granularity as presented in the paper, as well as
     %antigranularity and granular moments, both in absolute scale and
     %normalized ! 
-    mygrantableau = [vectogran; vectoantigran; maxou; standev; cov; skew; kurt; energy; entropy; maxounorm; standevnorm; covnorm; skewnorm; kurtnorm; energynorm; entropynorm];
+    mygrantableau = [vectogran;vectoantigran;N300; N030;N003;maxounorm;standevnorm;covnorm;skewnorm;kurtnorm;energynorm;entropynorm;covolume;covN300;covN030;covN003;maxounorm;standevnorm;covnorm;skewnorm;kurtnorm;energynorm; entropynorm];
+    mygranconcattableau = mygrantableau(:);
     [width, height ]= size(mygrantableau);
     
     
@@ -91,15 +94,35 @@ for iPat = 1%:size(patients_list, 1) % Patients iteration
         GLSZMatrice = GLSZM_compute(ct_resamp);
         GLSZMfeat = GLSZM_features(GLSZMatrice);
         
-        x_feat = [x_feat; fOrder_feats, GLCMfeat2, GLDMfeat, GLRLMfeat2, GLSZMfeat, vectogran, vectoantigran,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm]; 
-        x_feat_utile = [x_feat_utile; fOrder_feats, GLCMfeat2, GLDMfeat, GLRLMfeat2, GLSZMfeat, vectogran, vectoantigran,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm];
+        x_feat = [x_feat; fOrder_feats, GLCMfeat2, GLDMfeat, GLRLMfeat2, GLSZMfeat, mygranconcattableau(:)']; 
+        x_feat_utile = [x_feat_utile; fOrder_feats, GLCMfeat2, GLDMfeat, GLRLMfeat2, GLSZMfeat, mygranconcattableau(:)'];
         
         
         x_feat_patientNaymes = [x_feat_patientNaymes; patient_name]
         x_feat_utile_patientNaymes = [x_feat_utile_patientNaymes; patient_name]
+        
+        %ad the morphological labels
+        
+        if(isempty(morpholabels)) 
+            iteratoor = 1;
+            cellofarrays = {vectogran; vectoantigran;N300;N030;N003; maxounorm; standevnorm; covnorm; skewnorm; kurtnorm; energynorm; entropynorm; covolume; covN300; covN030; covN003;covmaxounorm;covstandevnorm;covcovnorm;covskewnorm;covkurtnorm;covenergynorm; coventropynorm};
+            cellofstrings = {'vectogran'; 'vectoantigran'; 'N300';'N030';'N003'; 'maxounorm'; 'standevnorm'; 'covnorm'; 'skewnorm'; 'kurtnorm'; 'energynorm'; 'entropynorm'; 'covolume'; 'covN300'; 'covN030'; 'covN003' ;'covmaxounorm';'covstandevnorm';'covcovnorm';'covskewnorm';'covkurtnorm';'covenergynorm'; 'coventropynorm'};
+            for type=1: size(cellofstrings, 1)
+                for iterangle =1:size(cellofarrays{type,1}, 1)
+                    for iteriter = 1:size(cellofarrays{type,1}, 2)
+                        morpholabels{iteratoor} = char([cellofstrings{type,1}, '_', num2str(iterangle), '_', num2str(iteriter)]);
+                        iteratoor = iteratoor + 1;
+                    end
+                end
+            end
+            xLabelsMorph = [xLabels, morpholabels];
+            
+        end
+        
+        
     else
         % sinon les textures sont NaN
-         x_feat = [x_feat; fOrder_feats, zeros([1,37 + width * height])/0];  %37 longueur totale des vecteurs + 20
+         x_feat = [x_feat; fOrder_feats, zeros([1,37 + size(mygranconcattableau(:),1)])/0];  %37 longueur totale des vecteurs + 20
         x_feat_patientNaymes = [x_feat_patientNaymes; patient_name]
     end
     toc;

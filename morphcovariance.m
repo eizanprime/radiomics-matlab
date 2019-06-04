@@ -1,5 +1,6 @@
-function [covolume,maxou,standev,cov,skew,kurt,energy, entropy,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = morphcovariance(vol3d, numiter, maskreduit, offset)
-
+function [covolume,covN300, covN030, covN003,maxounorm,standevnorm,covnorm,skewnorm,kurtnorm,energynorm, entropynorm] = morphcovariance(vol3d, numiter, maskreduit, offset)
+%maxou,standev,cov,skew,kurt,energy, entropy, 
+%supprimé les nons norm
 maskreversed255 = uint8(uint8(~maskreduit).*uint8(255));
 
 
@@ -28,6 +29,14 @@ energy = [energy, ones(numiter, 1).'];
 entropy = firstOrder(12);
 entropy = [entropy, ones(numiter, 1).'];
 
+NOUT = cent_moment(single(vol3d), single(maskreduit), [3, 0,0; 0,3,0; 0,0,3]);
+
+covN300 = NOUT(1, :);
+covN300 = [covN300, ones(numiter, 1).'];
+covN030 = NOUT(2, :);
+covN030 = [covN030, ones(numiter, 1).'];
+covN003 = NOUT(3, :);
+covN003 = [covN003, ones(numiter, 1).'];
 
 
 numDir = size(offset,1); % number of directions, currently 13
@@ -42,7 +51,9 @@ for iOff = 1:numDir
     kurttemp = kurt(1);
     energytemp = energy(1);
     entropytemp = entropy(1);
-    
+    covN300temp = covN300(1);
+    covN030temp = covN030(1);
+    covN003temp = covN003(1);
     
     for iIter = 1:numiter
         
@@ -69,6 +80,14 @@ for iOff = 1:numDir
         energytemp = [energytemp, firstOrder(11)];
         entropytemp = [entropytemp, firstOrder(12)];
         
+        NOUT = cent_moment(single(tmp1), single(maskreduit), [3, 0,0; 0,3,0; 0,0,3]);
+ 
+        covN300temp = [covN300temp, NOUT(1, :)];
+        covN030temp = [covN030temp, NOUT(2, :)];
+        covN003temp = [covN003temp, NOUT(3, :)];
+        
+    
+        
     end
 covolume = [covolume; covolumetemp];
 maxou = [maxou; maxoutemp];
@@ -78,18 +97,27 @@ skew = [skew; skewtemp];
 kurt = [kurt; kurttemp];
 energy = [energy; energytemp];
 entropy = [entropy; entropytemp];
+
+covN300 = [covN300; covN300temp];
+covN030 = [covN030; covN030temp];
+covN003 = [covN003; covN003temp];
+
     
 end
 
 
-covolume(1,:) = []
-maxou(1,:) = []
-standev(1,:) = []
-cov(1,:) = []
-skew(1,:) = []
-kurt(1,:) = []
-energy(1,:) = []
-entropy(1,:) = []
+covolume(1,:) = [];
+maxou(1,:) = [];
+standev(1,:) = [];
+cov(1,:) = [];
+skew(1,:) = [];
+kurt(1,:) = [];
+energy(1,:) = [];
+entropy(1,:) = [];
+
+covN300(1,:) = [];
+covN030(1,:) = [];
+covN003(1,:) = [];
 
 
 

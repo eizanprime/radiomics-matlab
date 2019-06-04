@@ -59,10 +59,13 @@ data_txt(ind, :) = [];
 
 % loading features
  load('x_feat_utile_bis.mat');
+ %load('GranulFirstOrderPCAFeat.mat');
+ %load('GranulPCAFeat.mat');
+ %load('GranulFirstOrderPCANormFeat.mat')
  my_feats = x_feat_utile;
 data_num = [data_num, my_feats];
 data_num = [data_num, GranulPCAFeat];
-data_num = [data_num, GranulFirstOrderPCAFeat];
+data_num = [data_num, GranulFirstOrderPCAFeat];%
 data_num = [data_num, GranulFirstOrderNormPCAFeat];
 type = [type, repmat("double", 1, size(my_feats, 1))];
 

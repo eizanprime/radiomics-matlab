@@ -1,5 +1,5 @@
 function label = GLDM_label()
 
-    label = {'Coarseness' 'Contrast' 'Busyness' 'Complexity'  'Strength'};
+    label = {'GLDM_Coarseness' 'GLDM_Contrast' 'GLDM_Busyness' 'GLDM_Complexity'  'GLDM_Strength'};
 
 end

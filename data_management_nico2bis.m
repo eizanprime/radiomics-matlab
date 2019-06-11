@@ -28,7 +28,7 @@ x_feat_utile_patientNaymes = [];
 
 morpholabels = {}; %yes I finally make those labels lol
 
-for iPat = 1:size(patients_list, 1) % Patients iteration
+for iPat = 1%:size(patients_list, 1) % Patients iteration
     tic;
     %% Path Management
     patient_name = patients_list(iPat).name;
@@ -66,7 +66,7 @@ for iPat = 1:size(patients_list, 1) % Patients iteration
     
     % TEXTURE INDICES   %Higher order texture analysis by Dr Paul ! 
     % Check if the tumor volume is > 10cm3, or textures are non-sense
-    if fOrder_feats(2) > 10       
+    if fOrder_feats(2) > 0       
         % Resample ct intensities into a limit number of value 
         ct_resamp = zeros(size(ct));
         
@@ -107,11 +107,11 @@ for iPat = 1:size(patients_list, 1) % Patients iteration
         if(isempty(morpholabels)) 
             iteratoor = 1;
             cellofarrays = {vectogran; vectoantigran;N300;N030;N003; maxounorm; standevnorm; covnorm; skewnorm; kurtnorm; energynorm; entropynorm; covolume; covN300; covN030; covN003;covmaxounorm;covstandevnorm;covcovnorm;covskewnorm;covkurtnorm;covenergynorm; coventropynorm};
-            cellofstrings = {'vectogran'; 'vectoantigran'; 'N300';'N030';'N003'; 'maxounorm'; 'standevnorm'; 'covnorm'; 'skewnorm'; 'kurtnorm'; 'energynorm'; 'entropynorm'; 'covolume'; 'covN300'; 'covN030'; 'covN003' ;'covmaxounorm';'covstandevnorm';'covcovnorm';'covskewnorm';'covkurtnorm';'covenergynorm'; 'coventropynorm'};
+            cellofstrings = {'granularity_volume'; 'antigranularity_volume'; 'granularity_N300';'granularity_N030';'granularity_N003'; 'granularity_max'; 'granularity_standev'; 'granularity_cov'; 'granularity_skewness'; 'granularity_kurtosis'; 'granularity_energy'; 'granularity_entropy'; 'morpho-covariance_volume'; 'morpho-covariance_N300'; 'morpho-covariance_N030'; 'morpho-covariance_N003' ;'morpho-covariance_max';'morpho-covariance_standev';'morpho-covariance_cov';'morpho-covariance_skew';'morpho-covariance_kurt';'morpho-covariance_energy'; 'morpho-covariance_entropy'};
             for type=1: size(cellofstrings, 1)
                 for iterangle =1:size(cellofarrays{type,1}, 1)
                     for iteriter = 1:size(cellofarrays{type,1}, 2)
-                        morpholabels{iteratoor} = char([cellofstrings{type,1}, '_', num2str(iterangle), '_', num2str(iteriter)]);
+                        morpholabels{iteratoor} = char([cellofstrings{type,1}]);%, '_', num2str(iterangle), '_', num2str(iteriter)]);
                         iteratoor = iteratoor + 1;
                     end
                 end
